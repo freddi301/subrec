@@ -1,7 +1,7 @@
 // @flow
 
 import { expect } from 'chai';
-import { parse, evaluate, VAR,EVAL } from '../src';
+import { parse, evaluate, VAR, EVAL } from '../src';
 
 describe('parse', () => {
   it('works', () => {

@@ -6,6 +6,8 @@ type Term = string | Array<Term>;
 
 type Rule = [ Term, Term ];
 
+type Eval = [ Array<Rule>, typeof EVAL, Term ];
+
 export const VAR = '$';
 export const EVAL = '|-';
 
@@ -31,14 +33,14 @@ export function matchIn(rules: Array<Rule>, term: Term): ?{ scope: Array<Rule>, 
   }
 }
 
-export function sub(rules: Array<Rule>, term: Term): Term {
+export function sub([rules, EV, term]: Eval): Term {
   let subbing = term;
   while (true) {
     const matched = matchIn(rules, subbing);
     if (matched) {
-      subbing = sub(matched.scope.concat(rules), matched.right);
+      subbing = sub([matched.scope.concat(rules), EV, matched.right]);
     } else if (subbing instanceof Array) {
-      const subbed = subbing.map(item => sub(rules, item));
+      const subbed = subbing.map(item => sub([rules, EV, item]));
       if (isEqual(subbing, subbed)) return subbing;
       subbing = subbed;
     } else return subbing;
@@ -48,7 +50,12 @@ export function sub(rules: Array<Rule>, term: Term): Term {
 
 export function evaluate(term: Term): Term {
   if (term instanceof Array && term.length === 3 && term[1] === EVAL && term[0] instanceof Array) {
-    return sub((term[0].filter(item => item.length === 2): any), term[2]);
+    const rules: Array<any> = term[0].filter(item =>
+      item instanceof Array && item.length === 2 &&
+      ((typeof item[0] === 'string') || item[0] instanceof Array) &&
+      ((typeof item[1] === 'string') || item[1] instanceof Array)
+    );
+    return sub([rules, EVAL, term[2]]);
   }
   return term
 }

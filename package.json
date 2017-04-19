@@ -11,6 +11,8 @@
   ],
   "scripts": {
     "build:syntax": "nearleyc src/syntax.ne -o src/syntax.js",
+    "flow": "flow check .",
+    "precommit": "flow check . && npm test",
     "test": "mocha test/*.spec.js"
   },
   "devDependencies": {
@@ -26,6 +28,7 @@
     "chai": "3.5.0",
     "flow-bin": "^0.44.2",
     "flow-typed": "^2.0.0",
+    "husky": "^0.13.3",
     "mocha": "^3.2.0",
     "nearley": "^2.8.0"
   },
