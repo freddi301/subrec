@@ -1,0 +1,35 @@
+{
+  "name": "sub",
+  "version": "0.0.0",
+  "description": "lisp like",
+  "main": "lib/index",
+  "author": "Frederik Batuna <gobi301@gmail.com>",
+  "license": "MIT",
+  "files": [
+    "lib",
+    "src"
+  ],
+  "scripts": {
+    "build:syntax": "nearleyc src/syntax.ne -o src/syntax.js",
+    "test": "mocha test/*.spec.js"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.24.1",
+    "babel-plugin-transform-builtin-extend": "1.1.2",
+    "babel-plugin-transform-class-properties": "^6.23.0",
+    "babel-plugin-transform-flow-strip-types": "6.22.0",
+    "babel-plugin-transform-object-rest-spread": "^6.23.0",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-preset-env": "^1.2.2",
+    "babel-preset-latest": "^6.24.0",
+    "babel-preset-react": "^6.24.1",
+    "chai": "3.5.0",
+    "flow-bin": "^0.44.2",
+    "flow-typed": "^2.0.0",
+    "mocha": "^3.2.0",
+    "nearley": "^2.8.0"
+  },
+  "dependencies": {
+    "lodash": "^4.17.4"
+  }
+}
