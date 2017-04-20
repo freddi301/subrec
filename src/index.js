@@ -75,8 +75,8 @@ export function sub([rules, EV, term]: [ List<Rule>, typeof EVAL, Term ]): Term 
 }
 
 export function evaluate(term: Term): Term {
-  if (term instanceof Array && term.length === 3 && term[1] === EVAL && term[0] instanceof Array && list.is(term[0])) {
-    return sub([term[0], term[1], term[2]]);
+  if (term instanceof Array && term[LEFT][RIGHT] === EVAL && term[LEFT][LEFT] instanceof Array && list.is(term[LEFT][LEFT])) {
+    return sub([ term[LEFT][LEFT], term[LEFT, RIGHT], term[RIGHT] ]);
   }
   return term
 }

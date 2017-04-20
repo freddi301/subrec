@@ -1,7 +1,7 @@
 // @flow
 
 import { expect } from 'chai';
-import { parse, list, match, matchIn, sub, END, VAR, EVAL } from '../src';
+import { parse, list, match, matchIn, sub, evaluate, END, VAR, EVAL } from '../src';
 
 describe('helper functions', () => {
   describe('list', () => {
@@ -149,3 +149,62 @@ describe('recursion', () => {
     ])).to.deep.equal(parse('(enc, enc, enc, enc, enc, foo bar (number 3))'));
   });
 });
+
+describe('curry', () => {
+  it('works', () => {
+    expect(sub([
+      parse(`(
+        inc (number 1) (number 2),
+        inc (number 2) (number 3),
+        inc (number 3) (number 4),
+        inc (number 4) (number 5),
+        (rec (number 5) ($ data)) (
+          enc (data $)
+        ),
+        (rec (number, $ step), $ data) (
+          rec (inc, number, step $) (enc, data $)
+        ),
+        dog (rec (number 1)),
+        feed ($ dog) (
+          (dog $) ham
+        ),
+        ${END}
+      )`), EVAL,
+      parse('(feed dog)')
+    ])).to.deep.equal(parse('(enc, enc, enc, enc, enc, ham)'));
+  });
+});
+
+describe('eval', () => {
+  it('works', () => {
+    expect(evaluate(parse(`((
+      inc (number 1) (number 2),
+      inc (number 2) (number 3),
+      inc (number 3) (number 4),
+      inc (number 4) (number 5),
+      (rec (number 5) ($ data)) (
+        enc (data $)
+      ),
+      (rec (number, $ step), $ data) (
+        rec (inc, number, step $) (enc, data $)
+      ),
+      dog (rec (number 1)),
+      feed ($ dog) (
+        (dog $) ham
+      ),
+      ${END}
+    ) ${EVAL} (feed dog))`))).to.deep.equal(parse('(enc, enc, enc, enc, enc, ham)'));
+  });
+});
+/*
+describe('eval', () => {
+  it('works', () => {
+    expect(evaluate(parse(`((
+      (dictField  )
+      (($ dict) . ($ field)) (
+
+      )
+      ${END}
+    ) ${EVAL} (feed dog))`))).to.deep.equal(parse('hello'));
+  });
+});*/
