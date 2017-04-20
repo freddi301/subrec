@@ -60,11 +60,20 @@ export function evaluate(term: Term): Term {
   return term
 }
 
-import syntax from "./syntax.js";
-import { Parser } from "nearley";
+import make from "nearley-make";
+import fs from 'fs';
 
+const grammar = fs.readFileSync('src/syntax.ne', 'utf-8');
 export function parse(text: string): Term {
-  const parser = new Parser(syntax.ParserRules, syntax.ParserStart);
+  const parser = make(grammar);
   parser.feed(text);
-  return parser.results[0][0].toJSON();
+  /*if (parser.results.length > 1) {
+    console.log(text);
+    console.dir(parser.results, {color:true,depth:null});
+    throw new Error('ambigous syntax');
+  } else {
+    console.log(text);
+    console.dir(parser.results[0].toJSON(), {color:true,depth:null});
+  }*/
+  return parser.results[0].toJSON();
 }

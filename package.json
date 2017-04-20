@@ -10,7 +10,6 @@
     "src"
   ],
   "scripts": {
-    "build:syntax": "nearleyc src/syntax.ne -o src/syntax.js",
     "flow": "flow check .",
     "precommit": "flow check . && npm test",
     "test": "mocha test/*.spec.js"
@@ -30,7 +29,8 @@
     "flow-typed": "^2.0.0",
     "husky": "^0.13.3",
     "mocha": "^3.2.0",
-    "nearley": "^2.8.0"
+    "nearley": "2.8.0",
+    "nearley-make": "^1.0.0"
   },
   "dependencies": {
     "lodash": "^4.17.4"
