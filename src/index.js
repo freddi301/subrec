@@ -2,43 +2,69 @@
 
 import { isEqual } from 'lodash';
 
-type Term = string | Array<Term>;
+type Atom = string;
+type Juxt = [ Term, Term ];
+type Term = Atom | Juxt;
+type List<Item: Term> = [ Item, List<Item> ] | typeof END;
+type Pattern = Term;
+type Rule = [ Pattern, Term ];
 
-type Rule = [ Term, Term ];
-
-type Eval = [ Array<Rule>, typeof EVAL, Term ];
+export const list = {
+  is: (term: Term): boolean => {
+    if (term === END) return true;
+    if (term instanceof Array) return list.is(term[RIGHT]);
+    return false;
+  },
+  fromArray: (array: Array<Term>): List<Term> => {
+    if (array.length === 0) return END;
+    let list = [ array[0], END ];
+    let last = list;
+    for (const item of array.slice(1)) { last[RIGHT] = [ item, END ]; }
+    return list;
+  },
+  toArray: (li: List<Term>, arr = []): Array<Term> => {
+    if (!list.is(li)) throw new Error('list expected');
+    if (li === END) return arr;
+    if (li instanceof Array) return list.toArray(li[RIGHT], arr.concat([li[LEFT]]));
+  },
+};
 
 export const VAR = '$';
 export const EVAL = '|-';
+export const END = 'end';
 
-export function match(left: Term, term: Term): ?Array<Rule> {
-  if (left === term) return [];
-  if (left instanceof Array && left[0] === VAR) return [ [ [ left[1], VAR ], term ] ];
-  if (left instanceof Array && term instanceof Array && left.length === term.length) {
+const LEFT = 0;
+const RIGHT = 1;
+
+export function match(pattern: Pattern, term: Term): ?List<Rule> {
+  if (pattern === term) return END;
+  if (pattern instanceof Array && pattern[LEFT] === VAR) return [ [ [ pattern[RIGHT], VAR ], term ], END ];
+  if (pattern instanceof Array && term instanceof Array) {
     let scope = [];
-    for (let i = 0; i < left.length; i++) {
-      const param = match(left[i], term[i]);
-      if(!param) return null;
-      scope = scope.concat(param);
-    }
-    return scope;
+    const left = match(pattern[LEFT], term[LEFT]);
+    const right = match(pattern[RIGHT], term[RIGHT]);
+    if (!left || !right) return null;
+    scope = scope.concat(list.toArray(left), list.toArray(right));
+    return list.fromArray(scope);
   }
   return null;
 }
 
-export function matchIn(rules: Array<Rule>, term: Term): ?{ scope: Array<Rule>, right: Term } {
-  for (let [left, right] of rules) {
-    const scope = match(left, term);
-    if (scope) return { scope, right };
-  }
+export function matchIn(rules: List<Rule>, term: Term): ?{ scope: List<Rule>, right: Term } {
+  if (!list.is(rules)) throw new Error('list expected');
+  if (rules === END) return null;
+  const rule = rules[LEFT];
+  const scope = match(rule[LEFT], term);
+  if (scope) return { scope, right: rule[RIGHT] };
+  return matchIn(rules[RIGHT], term);
 }
 
-export function sub([rules, EV, term]: Eval): Term {
+export function sub([rules, EV, term]: [ List<Rule>, typeof EVAL, Term ]): Term {
   let subbing = term;
   while (true) {
     const matched = matchIn(rules, subbing);
     if (matched) {
-      subbing = sub([matched.scope.concat(rules), EV, matched.right]);
+      subbing = sub([matched.scope, EV, matched.right]);
     } else if (subbing instanceof Array) {
       const subbed = subbing.map(item => sub([rules, EV, item]));
       if (isEqual(subbing, subbed)) return subbing;
@@ -49,24 +75,19 @@ export function sub([rules, EV, term]: Eval): Term {
 }
 
 export function evaluate(term: Term): Term {
-  if (term instanceof Array && term.length === 3 && term[1] === EVAL && term[0] instanceof Array) {
-    const rules: Array<any> = term[0].filter(item =>
-      item instanceof Array && item.length === 2 &&
-      ((typeof item[0] === 'string') || item[0] instanceof Array) &&
-      ((typeof item[1] === 'string') || item[1] instanceof Array)
-    );
-    return sub([rules, EVAL, term[2]]);
+  if (term instanceof Array && term.length === 3 && term[1] === EVAL && term[0] instanceof Array && list.is(term[0])) {
+    return sub([term[0], term[1], term[2]]);
   }
   return term
 }
 
 import make from "nearley-make";
 import fs from 'fs';
-
 const grammar = fs.readFileSync('src/syntax.ne', 'utf-8');
 export function parse(text: string): Term {
   const parser = make(grammar);
   parser.feed(text);
+  if (parser.results.length > 1) throw new Error('ambigous syntax');
   /*if (parser.results.length > 1) {
     console.log(text);
     console.dir(parser.results, {color:true,depth:null});

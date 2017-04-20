@@ -1,15 +1,16 @@
 // @flow
 
 import { expect } from 'chai';
-import { parse, evaluate, VAR, EVAL } from '../src';
+import { parse, VAR, EVAL } from '../src';
 
 describe('parse syntax', () => {
   it('works', () => {
-    expect(parse('(a b)')).to.deep.equal(['a', 'b']);
-    expect(parse('(a b c)')).to.deep.equal([['a', 'b'], 'c']);
+    expect(parse('a')).to.deep.equal('a');
+    expect(parse('(aa b)')).to.deep.equal(['aa', 'b']);
+    expect(parse('(a b (c))')).to.deep.equal([['a', 'b'], 'c']);
     expect(parse('((a b) c)')).to.deep.equal([['a', 'b'], 'c']);
     expect(parse('(a, b)')).to.deep.equal(['a', 'b']);
-    expect(parse('(a, b, c)')).to.deep.equal(['a', ['b', 'c']]);
+    expect(parse('(a, b, c,)')).to.deep.equal(['a', ['b', 'c']]);
     expect(parse('(a, (b, c))')).to.deep.equal(['a', ['b', 'c']]);
     expect(parse('(a, (b c))')).to.deep.equal(['a', ['b', 'c']]);
     expect(parse('(a, b c)')).to.deep.equal(['a', ['b', 'c']]);
