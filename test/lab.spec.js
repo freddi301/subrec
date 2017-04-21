@@ -5,17 +5,6 @@ import { parse, list, match, matchIn, sub, evaluate, END, VAR, EVAL } from '../s
 
 describe('helper functions', () => {
   describe('list', () => {
-    describe('#is', () => {
-      it('works', () => {
-        expect(list.is(parse(`${END}`))).to.equal(true);
-        expect(list.is(parse(`hello`))).to.equal(false);
-        expect(list.is(parse(`(a ${END})`))).to.equal(true);
-        expect(list.is(parse(`(a hello)`))).to.equal(false);
-        expect(list.is(parse(`(a b ${END})`))).to.equal(true);
-        expect(list.is(parse(`(a, b, d)`))).to.equal(false);
-        expect(list.is(parse(`((a b), (c d), ${END})`))).to.equal(true);
-      });
-    });
     describe('#fromArray', () => {
       it('works', () => {
         expect(list.fromArray([])).to.deep.equal(END);
@@ -30,12 +19,12 @@ describe('match', () => {
   it('works', () => {
     expect(match(parse(`a`), parse(`b`))).to.deep.equal(null);
     expect(match(parse(`(a b)`), parse(`(b a)`))).to.deep.equal(null);
-    expect(match(parse(`a`), parse(`a`))).to.deep.equal(list.fromArray([]));
-    expect(match(parse(`(a b)`), parse(`(a b)`))).to.deep.equal(list.fromArray([]));
+    expect(match(parse(`a`), parse(`a`))).to.deep.equal([]);
+    expect(match(parse(`(a b)`), parse(`(a b)`))).to.deep.equal([]);
     expect(match(parse(`(${VAR} a)`), parse(`hello`)))
-      .to.deep.equal(list.fromArray([ [ [ 'a', VAR ], 'hello' ] ]));
+      .to.deep.equal([ [ [ 'a', VAR ], 'hello' ] ]);
     expect(match(parse(`((${VAR} a) (${VAR} b))`), parse(`(hello ciao)`)))
-       .to.deep.equal(list.fromArray([ [ [ 'a', VAR ], 'hello' ], [ [ 'b', VAR ], 'ciao' ] ]));
+       .to.deep.equal([ [ [ 'a', VAR ], 'hello' ], [ [ 'b', VAR ], 'ciao' ] ]);
   });
 });
 
@@ -44,11 +33,11 @@ describe('matchIn', () => {
     expect(matchIn(parse(`(
       a x,
       b y, ${END},
-    )`), parse('a')).right).to.deep.equal('x');
+    )`), parse('a'))).property('right').to.deep.equal('x');
     expect(matchIn(parse(`(
       a x,
       b y, ${END}
-    )`), parse('b')).right).to.deep.equal('y');
+    )`), parse('b'))).property('right').to.deep.equal('y');
     expect(matchIn(parse(`(
       a x,
       b y, ${END}
@@ -104,12 +93,12 @@ describe('bool not', () => {
 
 describe('vars', () => {
   it('works', () => {
-    expect(match([VAR, 'x'], 'milk')).to.deep.equal(list.fromArray([[ ['x', VAR], 'milk' ]]));
-    expect(match(['pack', [VAR, 'item']], ['pack', 'milk'])).to.deep.equal(list.fromArray([ [ ['item', VAR], 'milk' ] ]));
+    expect(match([VAR, 'x'], 'milk')).to.deep.equal(([[ ['x', VAR], 'milk' ]]));
+    expect(match(['pack', [VAR, 'item']], ['pack', 'milk'])).to.deep.equal(([ [ ['item', VAR], 'milk' ] ]));
     expect(sub(list.fromArray([
       [ ['pack', [VAR, 'item']], ['Package', ['item', VAR]] ]
     ]), ['pack', 'milk'])).to.deep.equal(['Package', 'milk']);
-    expect(match([[VAR, 'x'], [VAR, 'y']], ['milk', 'egg'])).to.deep.equal(list.fromArray([[ ['x', VAR], 'milk' ], [ ['y', VAR], 'egg' ]]));
+    expect(match([[VAR, 'x'], [VAR, 'y']], ['milk', 'egg'])).to.deep.equal(([[ ['x', VAR], 'milk' ], [ ['y', VAR], 'egg' ]]));
     expect(sub(list.fromArray([
       [ [['doublepack', [VAR, 'itemA']], [VAR, 'itemB']], [['DoublePackage', ['itemA', VAR]], ['itemB', VAR]] ]
     ]), [['doublepack', 'milk'], 'egg'])).to.deep.equal([['DoublePackage', 'milk'], 'egg']);
