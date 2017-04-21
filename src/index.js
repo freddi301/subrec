@@ -19,6 +19,14 @@ export const list = {
     if (li instanceof Array) return list.toArray(li[RIGHT], arr.concat([li[LEFT]]));
     throw new Error('Term expected');
   },
+  toJuxtArray: (li: Term, arr: Array<Juxt> = []): Array<Juxt> => {
+    if (typeof li === 'string') return arr;
+    if (li instanceof Array) {
+      const head = li[LEFT];
+      if (head instanceof Array) return list.toJuxtArray(li[RIGHT], arr.concat([head]));
+    }
+    throw new Error('Juxt expected');
+  },
 };
 
 export const VAR = '$';
@@ -28,27 +36,29 @@ export const END = 'end';
 const LEFT = 0;
 const RIGHT = 1;
 
-export function match(pattern: Term, term: Term): ?Array<Term> {
+export function match(pattern: Term, term: Term): ?Array<Juxt> {
   if (pattern === term) return [];
   if (pattern instanceof Array && pattern[LEFT] === VAR) return [ [ [ pattern[RIGHT], VAR ], term ] ];
   if (pattern instanceof Array && term instanceof Array) {
     const left = match(pattern[LEFT], term[LEFT]);
     const right = match(pattern[RIGHT], term[RIGHT]);
     if (!left || !right) return null;
-    return left.concat(right);
+    const scope = left.concat(right);
+    if (sameBindings(scope)) return scope;
   }
   return null;
 }
 
-export function matchIn(rules: Term, term: Term): ?{ scope: Term, right: Term } {
-  if (typeof rules === 'string') return null;
-  const rule = rules[LEFT];
-  const scope = match(rule[LEFT], term);
-  if (scope) return { scope: list.fromArray(scope), right: rule[RIGHT] };
-  return matchIn(rules[RIGHT], term);
+export function matchIn(rules: Array<Juxt>, term: Term): ?{ scope: Array<Juxt>, right: Term } {
+  if (rules.length === 0) return null;
+  for (const rule of rules) {
+    const scope = match(rule[LEFT], term);
+    if (scope) return { scope: scope, right: rule[RIGHT] };
+  }
+  return null;
 }
 
-export function sub(rules: Term, term: Term): Term {
+export function sub(rules: Array<Juxt>, term: Term): Term {
   let subbing = term;
   while (true) {
     const matched = matchIn(rules, subbing);
@@ -66,9 +76,18 @@ export function sub(rules: Term, term: Term): Term {
 export function evaluate(term: Term): Term {
   if (term instanceof Array && term[LEFT][RIGHT] === EVAL) {
     const rules = term[LEFT][LEFT];
-    if (rules instanceof Array) return sub(rules, term[RIGHT]);
+    if (rules instanceof Array) return sub(list.toJuxtArray(rules), term[RIGHT]);
   }
   return term
+}
+
+export function sameBindings(scope: Array<Juxt>): boolean {
+  for (const stand of scope) for (const step of scope) {
+    if (isEqual(stand[LEFT], step[LEFT])) {
+      if (!isEqual(stand[RIGHT], step[RIGHT])) return false;
+    }
+  }
+  return true;
 }
 
 import make from "nearley-make";
