@@ -93,12 +93,12 @@ describe('bool not', () => {
       [ ['not', 'true'], 'false' ],
       [ ['not', 'false'], 'true' ],
     ]);
-    expect(sub([rules, EVAL, 'true'])).to.equal('true');
-    expect(sub([rules, EVAL, 'false'])).to.equal('false');
-    expect(sub([rules, EVAL, ['not', 'true']])).to.equal('false');
-    expect(sub([rules, EVAL, ['not', 'false']])).to.equal('true');
-    expect(sub([rules, EVAL, ['not', ['not', 'false']]])).to.equal('false');
-    expect(sub([rules, EVAL, ['not', ['not', ['not', 'false']]]])).to.equal('true');
+    expect(sub(rules, 'true')).to.equal('true');
+    expect(sub(rules, 'false')).to.equal('false');
+    expect(sub(rules, ['not', 'true'])).to.equal('false');
+    expect(sub(rules, ['not', 'false'])).to.equal('true');
+    expect(sub(rules, ['not', ['not', 'false']])).to.equal('false');
+    expect(sub(rules, ['not', ['not', ['not', 'false']]])).to.equal('true');
   });
 });
 
@@ -106,13 +106,13 @@ describe('vars', () => {
   it('works', () => {
     expect(match([VAR, 'x'], 'milk')).to.deep.equal(list.fromArray([[ ['x', VAR], 'milk' ]]));
     expect(match(['pack', [VAR, 'item']], ['pack', 'milk'])).to.deep.equal(list.fromArray([ [ ['item', VAR], 'milk' ] ]));
-    expect(sub([list.fromArray([
+    expect(sub(list.fromArray([
       [ ['pack', [VAR, 'item']], ['Package', ['item', VAR]] ]
-    ]), EVAL, ['pack', 'milk']])).to.deep.equal(['Package', 'milk']);
+    ]), ['pack', 'milk'])).to.deep.equal(['Package', 'milk']);
     expect(match([[VAR, 'x'], [VAR, 'y']], ['milk', 'egg'])).to.deep.equal(list.fromArray([[ ['x', VAR], 'milk' ], [ ['y', VAR], 'egg' ]]));
-    expect(sub([list.fromArray([
+    expect(sub(list.fromArray([
       [ [['doublepack', [VAR, 'itemA']], [VAR, 'itemB']], [['DoublePackage', ['itemA', VAR]], ['itemB', VAR]] ]
-    ]), EVAL, [['doublepack', 'milk'], 'egg']])).to.deep.equal([['DoublePackage', 'milk'], 'egg']);
+    ]), [['doublepack', 'milk'], 'egg'])).to.deep.equal([['DoublePackage', 'milk'], 'egg']);
   });
 });
 
@@ -120,18 +120,18 @@ describe('vars', () => {
 
 describe('recursion', () => {
   it('works', () => {
-    expect(sub([parse(`(( inc (number 2) (number 3) ), ${END})`), EVAL, parse('(inc (number 2))')])).to.deep.equal(parse('(number 3)'));
-    expect(sub([
+    expect(sub(parse(`(( inc (number 2) (number 3) ), ${END})`), parse('(inc (number 2))'))).to.deep.equal(parse('(number 3)'));
+    expect(sub(
       parse(`(
         ((inc (number 1)) (number 2)),
         ((inc (number 2)) (number 3)),
         ((inc (number 3)) (number 4)),
         ((inc (number 4)) (number 5)),
         ${END}
-      )`), EVAL,
+      )`),
       parse('(inc (inc (inc (inc (number 1)))))')
-    ])).to.deep.equal(parse('(number 5)'));
-    expect(sub([
+    )).to.deep.equal(parse('(number 5)'));
+    expect(sub(
       parse(`(
         inc (number 1) (number 2),
         inc (number 2) (number 3),
@@ -144,15 +144,15 @@ describe('recursion', () => {
           rec (inc, number, step $) (enc, data $)
         ),
         ${END}
-      )`), EVAL,
+      )`),
       parse('(rec (number 1) (foo bar, inc (number 2)))')
-    ])).to.deep.equal(parse('(enc, enc, enc, enc, enc, foo bar (number 3))'));
+    )).to.deep.equal(parse('(enc, enc, enc, enc, enc, foo bar (number 3))'));
   });
 });
 
 describe('curry', () => {
   it('works', () => {
-    expect(sub([
+    expect(sub(
       parse(`(
         inc (number 1) (number 2),
         inc (number 2) (number 3),
@@ -169,9 +169,9 @@ describe('curry', () => {
           (dog $) ham
         ),
         ${END}
-      )`), EVAL,
+      )`),
       parse('(feed dog)')
-    ])).to.deep.equal(parse('(enc, enc, enc, enc, enc, ham)'));
+    )).to.deep.equal(parse('(enc, enc, enc, enc, enc, ham)'));
   });
 });
 
@@ -197,7 +197,7 @@ describe('eval', () => {
   });
 });
 /*
-describe('eval', () => {
+describe('dict', () => {
   it('works', () => {
     expect(evaluate(parse(`((
       (dictField  )

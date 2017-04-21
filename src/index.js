@@ -59,24 +59,23 @@ export function matchIn(rules: List<Rule>, term: Term): ?{ scope: List<Rule>, ri
   return matchIn(rules[RIGHT], term);
 }
 
-export function sub([rules, EV, term]: [ List<Rule>, typeof EVAL, Term ]): Term {
+export function sub(rules: List<Rule>, term: Term): Term {
   let subbing = term;
   while (true) {
     const matched = matchIn(rules, subbing);
     if (matched) {
-      subbing = sub([matched.scope, EV, matched.right]);
+      subbing = sub(matched.scope, matched.right);
     } else if (subbing instanceof Array) {
-      const subbed = subbing.map(item => sub([rules, EV, item]));
+      const subbed = [sub(rules, subbing[LEFT]), sub(rules, subbing[RIGHT])]
       if (isEqual(subbing, subbed)) return subbing;
       subbing = subbed;
     } else return subbing;
   }
-  return term;
 }
 
 export function evaluate(term: Term): Term {
   if (term instanceof Array && term[LEFT][RIGHT] === EVAL && term[LEFT][LEFT] instanceof Array && list.is(term[LEFT][LEFT])) {
-    return sub([ term[LEFT][LEFT], term[LEFT, RIGHT], term[RIGHT] ]);
+    return sub(term[LEFT][LEFT], term[RIGHT]);
   }
   return term
 }
