@@ -183,3 +183,32 @@ describe('same variable binding', () => {
     expect(evaluate(parse(`((same ($ x) ($ x) y, end) ${EVAL} (same a b))`))).to.deep.equal(parse('(same a b)'));
   });
 });
+
+describe('inner eval', () => {
+  it('works', () => {
+    expect(evaluate(parse(`(hello ((world mondo , end) ${EVAL} world))`)))
+      .to.deep.equal(parse(`(hello ((world mondo , end) ${EVAL} world))`));
+    expect(evaluate(parse(`((
+      hello ($ who) (
+        (
+          world mondo,
+          teddy orsetto,
+          end
+        ) ${EVAL} (who $)
+      ),
+      end
+    ) ${EVAL} (hello world))`)))
+      .to.deep.equal(parse('mondo'));
+    expect(evaluate(parse(`((
+      hello ($ who) (
+        (
+          world mondo,
+          teddy orsetto,
+          end
+        ) ${EVAL} (who $)
+      ),
+      end
+    ) ${EVAL} (hello teddy))`)))
+      .to.deep.equal(parse('orsetto'));
+  });
+});

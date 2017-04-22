@@ -61,6 +61,11 @@ export function matchIn(rules: Array<Juxt>, term: Term): ?{ scope: Array<Juxt>, 
 export function sub(rules: Array<Juxt>, term: Term): Term {
   let subbing = term;
   while (true) {
+    if (isEvaluate(subbing)) {
+      const eterm = sub(rules, subbing[RIGHT]);
+      const erules = sub(rules, subbing[LEFT][LEFT]);
+      subbing = evaluate([[erules, EVAL], eterm]);
+    }
     const matched = matchIn(rules, subbing);
     if (matched) {
       subbing = sub(matched.scope, matched.right);
@@ -74,11 +79,15 @@ export function sub(rules: Array<Juxt>, term: Term): Term {
 }
 
 export function evaluate(term: Term): Term {
-  if (term instanceof Array && term[LEFT][RIGHT] === EVAL) {
+  if (isEvaluate(term)) {
     const rules = term[LEFT][LEFT];
     if (rules instanceof Array) return sub(list.toJuxtArray(rules), term[RIGHT]);
   }
   return term
+}
+
+export function isEvaluate(term: Term): boolean {
+  return term instanceof Array && term[LEFT][RIGHT] === EVAL;
 }
 
 export function sameBindings(scope: Array<Juxt>): boolean {
