@@ -152,6 +152,12 @@ describe('curry', () => {
         (dog $) ham
       ), ${END}) ${EVAL} (feed dog))`)
     )).to.deep.equal(parse('(enc, enc, enc, enc, enc, ham)'));
+    expect(evaluate(parse(`
+      ((
+        a b d,
+        end
+      ) ${EVAL} (a b c))
+    `))).to.deep.equal(parse('(d c)'));
   });
 });
 

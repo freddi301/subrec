@@ -1,6 +1,6 @@
 # TODO
 
-pattern typing
+pattern checking (eval, (rules) (data) (term))
 
 # WISHLIST
 

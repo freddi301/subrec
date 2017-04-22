@@ -11,6 +11,8 @@
   }
 %}
 
+MAIN -> _ LEAF _ {% d => d[1] %}
+
 LEAF ->
   ATOM {% d => d[0] %}
 | TUPLE {% d => d[0] %}
