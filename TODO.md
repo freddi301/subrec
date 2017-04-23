@@ -38,6 +38,9 @@ symple dsl
 ADT
 GADT
 common data types (eg. number, list, set, dict, map, tuple, bit)
+seamless async
+seamless lazy evaluation
+do notatation (from haskell)
 subtyping
 threading fibers (go like)
 must have libraries (date manipulation, JSON manipulation)

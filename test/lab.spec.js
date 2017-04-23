@@ -248,6 +248,19 @@ describe('lambdas', () => {
   });
 });
 
+describe('dicts', () => {
+  it('works', () => {
+    expect(evaluate(parse(`${EVAL}, (
+      ({ ($ fields) }) . ($ field) (
+        ${EVAL}, (fields $) (field $)
+      ),
+      dict ({ (x 4, y 6, end) }),
+      end
+    ) (dict . y)
+    `))).to.deep.equal('6');
+  });
+});
+
 /*
   pattern checking
   eval should have form (EVAL substitution-rules unreducible-term-constraints term)
