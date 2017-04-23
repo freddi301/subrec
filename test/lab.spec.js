@@ -248,22 +248,49 @@ describe('lambdas', () => {
   });
 });
 
+describe('single assignment', () => {
+  it('works', () => {
+    expect(evaluate(parse(`
+      ${EVAL}, (
+        (( ($ var) = ($ value) ) ($ body) ) (
+          ${EVAL}, ((var $) (value $), end) (body $)
+        ),
+        ($ var) => ($ body) ($ param) (
+          ${EVAL}, ((var $) (param $), end) (body $)
+        ),
+        f (x =>, y => (
+          z = (x + y),
+          o = (z + x),
+          p = 999,
+          p = (o + y),
+          p + o
+        )),
+        1 + 2 3, 3 + 1 4, 4 + 2 6, 6 + 4 10,
+        end
+      ) (f 1 2)
+    `))).to.deep.equal('10');
+  });
+});
+
 describe('dicts', () => {
   it('works', () => {
     expect(evaluate(parse(`${EVAL}, (
-      ({ ($ fields) }) . ($ field) (
+      (dict ($ fields)) . ($ field) (
         ${EVAL}, (fields $) (field $)
       ),
-      dict ({ (x 4, y 6, end) }),
+      ({ ($ fields) }) (dict (fields $)),
+      a ({ (x 4, y 6, end) }),
       end
-    ) (dict . y)
+    ) (a . y)
     `))).to.deep.equal('6');
   });
+  // ideal syntax should be ({ x : 4, y : 6, z : 8 })
+  // (({ x : 4), ((y : 6), (z : 8 })))
 });
 
 /*
   pattern checking
-  eval should have form (EVAL substitution-rules unreducible-term-constraints term)
+  eval should have form (EVAL, substitution-rules unreducible-term-constraints term)
   where substitution-rules are pattern-matching rules that substites
   term is the term to be interpreted
   unreducible-term-constraints should represent some sort of data constraints:
