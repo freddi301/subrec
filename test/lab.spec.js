@@ -219,16 +219,45 @@ describe('inner eval', () => {
   });
 });
 
+describe('lambdas', () => {
+  it('works', () => {
+    expect(evaluate(parse(`
+      ${EVAL}, (
+        ($ var) => ($ body) ($ param) (
+          ${EVAL}, ((var $) (param $), end) (body $)
+        ),
+        1 + 1 2,
+        2 + 1 3,
+        f (x =>, x + x + x),
+        end
+      ) (f 1)
+    `))).to.deep.equal('3');
+    expect(evaluate(parse(`
+      ${EVAL}, (
+        ($ var) => ($ body) ($ param) (
+          ${EVAL}, ((var $) (param $), end) (body $)
+        ),
+        1 + 1 2,
+        2 + 1 3,
+        1 + 2 3,
+        3 + 1 4,
+        f (x =>, y =>, x + y + x),
+        end
+      ) (f 1 2)
+    `))).to.deep.equal('4');
+  });
+});
+
 /*
   pattern checking
   eval should have form (EVAL substitution-rules unreducible-term-constraints term)
   where substitution-rules are pattern-matching rules that substites
   term is the term to be interpreted
-  unreducible-term-constraints should represent som sort of data constraints:
+  unreducible-term-constraints should represent some sort of data constraints:
     the term should be a term that if no further reducible obeys to unreducible-term-constraints
     the substitution-rules should always yield a term:
       A: if not further reducible the must obey to unreducible-term-constraints
-      B: if further reducible then further reductions must yield A B
+      B: if further reducible then further reductions must yield A or B
 */
 
 const CHECKS = 'checks';

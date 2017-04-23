@@ -17,10 +17,11 @@ implement other language's cool features
   Erlang, Elixir
   Lua, Rebol
   R, Julia, Matlab
-  Swift, Scala, FORTH, Fortran, Rexx, Perl, Pascal, Algol, Bash, Basic, awk, PHP, Hack, Dart, Kotlin, Groovy, FP, FL,
-  Visual Basic, VimScript, ASP, Vala, ColdFusion, ActionScript, AppleScript, Prolog, Delphi, Nim, Nemerle, Dylan, Algol,
+  Swift, Scala, FORTH, Fortran, Rexx, Perl, Pascal, Algol, Bash, Basic, awk, PHP, Hack, Dart, Kotlin,
+  Visual Basic, VimScript, ASP, Vala, ColdFusion, ActionScript, AppleScript, Prolog, Delphi, Nim, Nemerle,
   PureScript, Eiffel, Ada, Logos, Gosu, Apex, Idl, ABL, Lasso, APL, J, ML, Octave, Joy, Cobol, Deplhi, Red, K,
   Ceylon, ParaSail, Idris, Q, Pure, Genie, Agda, Cobra, Seed7, Boo, Squirrel, Falcon, Factor, Io, D, JoinJava,
+  Wren, agora, Lux, gravity, cpython, ponyc, nu, amber, lily, Groovy, FP, FL, Dylan, Algol,
 
 
 static typing
