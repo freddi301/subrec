@@ -106,18 +106,18 @@ describe('vars', () => {
 
 describe('recursion', () => {
   it('works', () => {
-    expect(evaluate(parse(`((( inc (number 2) (number 3) ), ${END}) ${EVAL} (inc (number 2)))`))).to.deep.equal(parse('(number 3)'));
+    expect(evaluate(parse(`(${EVAL}, (( inc (number 2) (number 3) ), ${END}) (inc (number 2)))`))).to.deep.equal(parse('(number 3)'));
     expect(evaluate(
-      parse(`((
+      parse(`(${EVAL}, (
         ((inc (number 1)) (number 2)),
         ((inc (number 2)) (number 3)),
         ((inc (number 3)) (number 4)),
         ((inc (number 4)) (number 5)),
         ${END}
-      ) ${EVAL} (inc (inc (inc (inc (number 1))))))`),
+      ) (inc (inc (inc (inc (number 1))))))`),
     )).to.deep.equal(parse('(number 5)'));
     expect(evaluate(
-      parse(`((
+      parse(`(${EVAL}, (
         inc (number 1) (number 2),
         inc (number 2) (number 3),
         inc (number 3) (number 4),
@@ -129,14 +129,14 @@ describe('recursion', () => {
           rec (inc, number, step $) (enc, data $)
         ),
         ${END}
-      ) ${EVAL} (rec (number 1) (foo bar, inc (number 2))))`)
+      ) (rec (number 1) (foo bar, inc (number 2))))`)
     )).to.deep.equal(parse('(enc, enc, enc, enc, enc, foo bar (number 3))'));
   });
 });
 
 describe('curry', () => {
   it('works', () => {
-    expect(evaluate(parse(`((
+    expect(evaluate(parse(`(${EVAL}, (
       inc (number 1) (number 2),
       inc (number 2) (number 3),
       inc (number 3) (number 4),
@@ -150,20 +150,20 @@ describe('curry', () => {
       dog (rec (number 1)),
       feed ($ dog) (
         (dog $) ham
-      ), ${END}) ${EVAL} (feed dog))`)
+      ), ${END}) (feed dog))`)
     )).to.deep.equal(parse('(enc, enc, enc, enc, enc, ham)'));
     expect(evaluate(parse(`
-      ((
+      (${EVAL}, (
         a b d,
         end
-      ) ${EVAL} (a b c))
+      ) (a b c))
     `))).to.deep.equal(parse('(d c)'));
   });
 });
 
 describe('eval', () => {
   it('works', () => {
-    expect(evaluate(parse(`((
+    expect(evaluate(parse(`(${EVAL}, (
       inc (number 1) (number 2),
       inc (number 2) (number 3),
       inc (number 3) (number 4),
@@ -179,42 +179,42 @@ describe('eval', () => {
         (dog $) ham
       ),
       ${END}
-    ) ${EVAL} (feed dog))`))).to.deep.equal(parse('(enc, enc, enc, enc, enc, ham)'));
+    ) (feed dog))`))).to.deep.equal(parse('(enc, enc, enc, enc, enc, ham)'));
   });
 });
 
 describe('same variable binding', () => {
   it('works', () => {
-    expect(evaluate(parse(`((same ($ x) ($ x) y, end) ${EVAL} (same a a))`))).to.deep.equal('y');
-    expect(evaluate(parse(`((same ($ x) ($ x) y, end) ${EVAL} (same a b))`))).to.deep.equal(parse('(same a b)'));
+    expect(evaluate(parse(`(${EVAL}, (same ($ x) ($ x) y, end) (same a a))`))).to.deep.equal('y');
+    expect(evaluate(parse(`(${EVAL}, (same ($ x) ($ x) y, end) (same a b))`))).to.deep.equal(parse('(same a b)'));
   });
 });
 
 describe('inner eval', () => {
   it('works', () => {
-    expect(evaluate(parse(`(hello ((world mondo , end) ${EVAL} world))`)))
-      .to.deep.equal(parse(`(hello ((world mondo , end) ${EVAL} world))`));
-    expect(evaluate(parse(`((
+    expect(evaluate(parse(`(${EVAL}, hello ((world mondo , end) world))`)))
+      .to.deep.equal(parse(`(${EVAL}, hello ((world mondo , end) world))`));
+    expect(evaluate(parse(`(${EVAL}, (
       hello ($ who) (
-        (
+        ${EVAL}, (
           world mondo,
           teddy orsetto,
           end
-        ) ${EVAL} (who $)
+        ) (who $)
       ),
       end
-    ) ${EVAL} (hello world))`)))
+    ) (hello world))`)))
       .to.deep.equal(parse('mondo'));
-    expect(evaluate(parse(`((
+    expect(evaluate(parse(`(${EVAL}, (
       hello ($ who) (
-        (
+        ${EVAL}, (
           world mondo,
           teddy orsetto,
           end
-        ) ${EVAL} (who $)
+        ) (who $)
       ),
       end
-    ) ${EVAL} (hello teddy))`)))
+    ) (hello teddy))`)))
       .to.deep.equal(parse('orsetto'));
   });
 });

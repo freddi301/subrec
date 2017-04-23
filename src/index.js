@@ -62,9 +62,9 @@ export function sub(rules: Array<Juxt>, term: Term): Term {
   let subbing = term;
   while (true) {
     if (isEvaluate(subbing)) {
-      const eterm = sub(rules, subbing[RIGHT]);
-      const erules = sub(rules, subbing[LEFT][LEFT]);
-      subbing = evaluate([[erules, EVAL], eterm]);
+      const eterm = sub(rules, subbing[RIGHT][RIGHT]);
+      const erules = sub(rules, subbing[RIGHT][LEFT]);
+      subbing = evaluate([EVAL, [erules, eterm]]);
     }
     const matched = matchIn(rules, subbing);
     if (matched) {
@@ -80,14 +80,14 @@ export function sub(rules: Array<Juxt>, term: Term): Term {
 
 export function evaluate(term: Term): Term {
   if (isEvaluate(term)) {
-    const rules = term[LEFT][LEFT];
-    if (rules instanceof Array) return sub(list.toJuxtArray(rules), term[RIGHT]);
+    const rules = term[RIGHT][LEFT];
+    if (rules instanceof Array) return sub(list.toJuxtArray(rules), term[RIGHT][RIGHT]);
   }
   return term
 }
 
 export function isEvaluate(term: Term): boolean {
-  return term instanceof Array && term[LEFT][RIGHT] === EVAL;
+  return term instanceof Array && term[LEFT] === EVAL;
 }
 
 export function sameBindings(scope: Array<Juxt>): boolean {
