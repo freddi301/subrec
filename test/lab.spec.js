@@ -205,7 +205,7 @@ describe('inner eval', () => {
       end
     ) (hello world))`)))
       .to.deep.equal(parse('mondo'));
-    expect(evaluate(parse(`(${EVAL}, (
+    expect(evaluate(parse(`${EVAL}, (
       hello ($ who) (
         ${EVAL}, (
           world mondo,
@@ -214,7 +214,47 @@ describe('inner eval', () => {
         ) (who $)
       ),
       end
-    ) (hello teddy))`)))
+    ) (hello teddy)`)))
       .to.deep.equal(parse('orsetto'));
+  });
+});
+
+/*
+  pattern checking
+  eval should have form (EVAL substitution-rules unreducible-term-constraints term)
+  where substitution-rules are pattern-matching rules that substites
+  term is the term to be interpreted
+  unreducible-term-constraints should represent som sort of data constraints:
+    the term should be a term that if no further reducible obeys to unreducible-term-constraints
+    the substitution-rules should always yield a term:
+      A: if not further reducible the must obey to unreducible-term-constraints
+      B: if further reducible then further reductions must yield A B
+*/
+
+const CHECKS = 'checks';
+
+describe('pattern checking', () => {
+  describe('validate unreducible term', () => {
+    it('works', () => {
+      expect(evaluate(parse(`(${EVAL}, (
+        boolean true ${CHECKS},
+        boolean false ${CHECKS},
+        end
+      ) (boolean true))`))).to.deep.equal(CHECKS);
+      expect(evaluate(parse(`(${EVAL}, (
+        boolean true ${CHECKS},
+        boolean false ${CHECKS},
+        end
+      ) (boolean false))`))).to.deep.equal(CHECKS);
+      expect(evaluate(parse(`(${EVAL}, (
+        boolean true ${CHECKS},
+        boolean false ${CHECKS},
+        end
+      ) (boolean hello))`))).to.deep.equal(parse('(boolean hello)'));
+      expect(evaluate(parse(`(${EVAL}, (
+        enc ($ T) ${CHECKS},
+        end
+      ) (enc hello))`))).to.deep.equal(CHECKS);
+    });
   });
 });

@@ -11,7 +11,11 @@
   }
 %}
 
-MAIN -> _ LEAF _ {% d => d[1] %}
+MAIN ->
+  _ LEAF _ {% d => d[1] %}
+| _ PAIR_LEFT _ {% d => d[1] %}
+| _ PAIR_RIGHT _ {% d => d[1] %}
+
 
 LEAF ->
   ATOM {% d => d[0] %}
