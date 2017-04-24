@@ -24,6 +24,7 @@ LEAF ->
 TUPLE ->
   "(" _ PAIR_LEFT _ ")" {% d => d[2] %}
 | "(" _ PAIR_RIGHT _ ")" {% d => d[2] %}
+| "(" _ TUPLE _ ")" {% d => d[2] %}
 
 PAIR_RIGHT ->
   LEAF _ "," _ LEAF {% d => new Juxt(d[0], d[4]) %}

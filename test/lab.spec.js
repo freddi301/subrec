@@ -223,28 +223,28 @@ describe('lambdas', () => {
   it('works', () => {
     expect(evaluate(parse(`
       ${EVAL}, (
-        ($ var) => ($ body) ($ param) (
-          ${EVAL}, ((var $) (param $), end) (body $)
+        lambdasub ($ var) ($ param) (($ left) ($ right)) (
+          (lambdasub (var $) (param $) (left $))
+          (lambdasub (var $) (param $) (right $))
         ),
-        1 + 1 2,
-        2 + 1 3,
-        f (x =>, x + x + x),
-        end
-      ) (f 1)
-    `))).to.deep.equal('3');
-    expect(evaluate(parse(`
-      ${EVAL}, (
+        lambdasub ($ var) ($ param) ($ var) (
+          (param $)
+        ),
+        lambdasub ($ var) ($ param) ($ body) (
+          (body $)
+        ),
         ($ var) => ($ body) ($ param) (
-          ${EVAL}, ((var $) (param $), end) (body $)
+          lambdasub (var $) (param $) (body $)
         ),
         1 + 1 2,
         2 + 1 3,
         1 + 2 3,
         3 + 1 4,
-        f (x =>, y =>, x + y + x),
+        f (x =>, x + x + x),
+        g (x =>, y =>, x + y + x),
         end
-      ) (f 1 2)
-    `))).to.deep.equal('4');
+      ) ((f 1) (g 1 2))
+    `))).to.deep.equal(parse('(3 4)'));
   });
 });
 
@@ -253,10 +253,20 @@ describe('single assignment', () => {
     expect(evaluate(parse(`
       ${EVAL}, (
         (( ($ var) = ($ value) ) ($ body) ) (
-          ${EVAL}, ((var $) (value $), end) (body $)
+          ((var $) => (body $)) (value $)
+        ),
+        lambdasub ($ var) ($ param) (($ left) ($ right)) (
+          (lambdasub (var $) (param $) (left $))
+          (lambdasub (var $) (param $) (right $))
+        ),
+        lambdasub ($ var) ($ param) ($ var) (
+          (param $)
+        ),
+        lambdasub ($ var) ($ param) ($ body) (
+          (body $)
         ),
         ($ var) => ($ body) ($ param) (
-          ${EVAL}, ((var $) (param $), end) (body $)
+          lambdasub (var $) (param $) (body $)
         ),
         f (x =>, y => (
           z = (x + y),
