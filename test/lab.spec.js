@@ -285,17 +285,47 @@ describe('single assignment', () => {
 describe('dicts', () => {
   it('works', () => {
     expect(evaluate(parse(`${EVAL}, (
-      (dict ($ fields)) . ($ field) (
-        ${EVAL}, (fields $) (field $)
+      Dict access (}) ($ field) (
+        empty
       ),
-      ({ ($ fields) }) (dict (fields $)),
-      a ({ (x 4, y 6, end) }),
+      Dict access ((($ field) ($ value)) ($ tail)) ($ field) (
+        (value $)
+      ),
+      Dict access (($ pair) ($ tail)) ($ field) (
+        Dict access (tail $) (field $)
+      ),
+      (Dict ($ fields)) . ($ field) (
+        Dict access (fields $) (field $)
+      ),
+      ({ ($ fields)) (Dict (fields $)),
+      a ({, x 4, y 6 ,}),
       end
-    ) (a . y)
-    `))).to.deep.equal('6');
+    ) (a . x, a . y, a . z, ({,a 7,}) . a, ({,a 7,}) . b)
+    `))).to.deep.equal(parse('4, 6, empty, 7, empty'));
   });
-  // ideal syntax should be ({ x : 4, y : 6, z : 8 })
-  // (({ x : 4), ((y : 6), (z : 8 })))
+});
+
+describe('guards', () => {
+  it('works', () => {
+    expect(evaluate(parse(`${EVAL}, (
+      1 + 1 2, 2 + 2 4, 3 + 3 6, 4 + 4 8, 5 + 5 10,
+      1 < 4 true, 2 < 4 true, 3 < 4 true, 4 < 4 false, 5 < 4 false,
+      doubleMaxFour ($ num) (
+        doubleMaxFourG ((num $) < 4)(num $)
+      ),
+      doubleMaxFourG true ($ num) (
+        (num $) + (num $)
+      ),
+      doubleMaxFourG false ($ num) (
+        empty
+      ),
+      end
+    ) (doubleMaxFour 1, doubleMaxFour 2, doubleMaxFour 3, doubleMaxFour 4, doubleMaxFour 5)
+    `))).to.deep.equal(parse('2, 4, 6, empty, empty'));
+    // ideal syntax
+    // doubleMaxFour ($ num) where ((num $) < 4) ( (num $) + (num $) )
+    // doubleMaxFour ($ num) where ((num $) > -4) ( (num $) + (num $) )
+  });
 });
 
 /*

@@ -17,11 +17,11 @@ implement other language's cool features
   Erlang, Elixir
   Lua, Rebol
   R, Julia, Matlab
-  Swift, Scala, FORTH, Fortran, Rexx, Perl, Pascal, Algol, Bash, Basic, awk, PHP, Hack, Dart, Kotlin,
-  Visual Basic, VimScript, ASP, Vala, ColdFusion, ActionScript, AppleScript, Prolog, Delphi, Nim, Nemerle,
+  Swift, Scala, FORTH, Fortran, Rexx, Perl, Pascal, Algol, Bash, Basic, awk, PHP, Hack, Dart, Kotlin, Tom, LFE,
+  Visual Basic, VimScript, ASP, Vala, ColdFusion, ActionScript, AppleScript, Prolog, Delphi, Nim, Nemerle, Refal
   PureScript, Eiffel, Ada, Logos, Gosu, Apex, Idl, ABL, Lasso, APL, J, ML, Octave, Joy, Cobol, Deplhi, Red, K,
   Ceylon, ParaSail, Idris, Q, Pure, Genie, Agda, Cobra, Seed7, Boo, Squirrel, Falcon, Factor, Io, D, JoinJava,
-  Wren, agora, Lux, gravity, cpython, ponyc, nu, amber, lily, Groovy, FP, FL, Dylan, Algol,
+  Wren, agora, Lux, gravity, cpython, ponyc, nu, amber, lily, Groovy, FP, FL, Dylan, Algol, Icon, Idol, Unicon,
 
 
 static typing
@@ -39,6 +39,8 @@ ADT
 GADT
 common data types (eg. number, list, set, dict, map, tuple, bit)
 seamless async
+seamless imperative programming
+seamless error managment (unicon like - using monad rails)
 seamless lazy evaluation
 do notatation (from haskell)
 subtyping
