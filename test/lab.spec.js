@@ -1,7 +1,7 @@
 // @flow
 
 import { expect } from 'chai';
-import { parse, list, match, matchIn, sub, evaluate, END, VAR, EVAL } from '../src';
+import { parse, list, match, matchIn, sub, evaluate, check, END, VAR, EVAL, CHECKS } from '../src';
 
 describe('helper functions', () => {
   describe('list', () => {
@@ -340,8 +340,6 @@ describe('guards', () => {
       B: if further reducible then further reductions must yield A or B
 */
 
-const CHECKS = 'checks';
-
 describe('pattern checking', () => {
   describe('validate unreducible term', () => {
     it('works', () => {
@@ -364,6 +362,102 @@ describe('pattern checking', () => {
         enc ($ T) ${CHECKS},
         end
       ) (enc hello))`))).to.deep.equal(CHECKS);
+    });
+  });
+  describe('pattern checked program', () => {
+    it('works', () => {
+      expect(check([
+        ['True', ['Boolean', 'true']],
+        ['False', ['Boolean', 'false']],
+      ], [
+        [['Boolean', 'true'], CHECKS],
+        [['Boolean', 'false'], CHECKS],
+      ])).to.deep.equal(null);
+      expect(check([
+        ['True', ['Boolean', 'true']],
+        ['False', ['Boolean', 'fal']],
+      ], [
+        [['Boolean', 'true'], CHECKS],
+        [['Boolean', 'false'], CHECKS],
+      ])).to.deep.equal([ ['False', ['Boolean', 'fal']] ]);
+      expect(check([
+        ['True', ['Boolean', 'true']],
+        ['False', ['Boolean', 'false']],
+        [['id', [VAR, 'x']], ['Boolean', ['x', VAR]]],
+        ['main', ['id', 'true']]
+      ], [
+        [['Boolean', 'true'], CHECKS],
+        [['Boolean', 'false'], CHECKS],
+        [['Boolean', [[VAR, '_'], VAR]], CHECKS],
+      ])).to.deep.equal(null);
+      expect(check([
+        ['True', ['Boolean', 'true']],
+        ['False', ['Boolean', 'false']],
+        [['id', [VAR, 'x']], ['Boolean', ['x', VAR]]],
+        ['main', ['id', 'integer']]
+      ], [
+        [['Boolean', 'true'], CHECKS],
+        [['Boolean', 'false'], CHECKS],
+        [['Boolean', [[VAR, '_'], VAR]], CHECKS],
+      ])).to.deep.equal([ ['main', ['id', 'integer']] ]);
+      expect(check([
+        ['True', ['Boolean', 'true']],
+        ['False', ['Boolean', 'false']],
+        [['id', [VAR, 'x']], ['Boolean', ['x', VAR]]],
+        ['main', ['id', ['true', 'false']]]
+      ], [
+        [['Boolean', 'true'], CHECKS],
+        [['Boolean', 'false'], CHECKS],
+        [['Boolean', [[VAR, '_'], VAR]], CHECKS],
+      ])).to.deep.equal([ ['main', ['id', ['true', 'false']]] ]);
+      const rules =  list.toJuxtArray(parse(`(
+        :: ($ type) ($ type, $ x) (type $, x $),
+        (number 1) + (number 1) (number 2),
+        (number 2) + (number 2) (number 4),
+        (number 3) + (number 3) (number 6),
+        (number 4) + (number 4) (number 8),
+        (number 5) + (number 5) (number 10),
+        (number 1) < (number 4) (boolean true),
+        (number 2) < (number 4) (boolean true),
+        (number 3) < (number 4) (boolean true),
+        (number 4) < (number 4) (boolean false),
+        (number 5) < (number 4) (boolean false),
+        doubleMaxFour ($ num) (:: number,
+          doubleMaxFourG ((num $) < (number 4)) (num $)
+        ),
+        doubleMaxFourG (boolean true) ($ num) (:: number,
+          (num $) + (num $)
+        ),
+        doubleMaxFourG (boolean false) ($ num) (
+          empty
+        ),
+        main1 (doubleMaxFour, 1),
+        main2 (doubleMaxFour, number 2),
+        main3 (doubleMaxFour, number 3),
+        main4 (doubleMaxFour, number 4),
+        main5 (doubleMaxFour, number 5),
+        end
+      )`));
+      //expect(sub(rules, 'main1')).to.deep.equal(['number', '2']);
+      expect(sub(rules, 'main2')).to.deep.equal(['number', '4']);
+      expect(sub(rules, 'main3')).to.deep.equal(['number', '6']);
+      expect(sub(rules, 'main4')).to.deep.equal([['::', 'number'], 'empty']);
+      expect(sub(rules, 'main5')).to.deep.equal([['::', 'number'], 'empty']);
+      expect(check(rules, [
+          [['number', '2'], CHECKS],
+          [['number', '4'], CHECKS],
+          [['number', '6'], CHECKS],
+          [['number', '8'], CHECKS],
+          [['number', '10'], CHECKS],
+          [['boolean', 'true'], CHECKS],
+          [['boolean', 'false'], CHECKS],
+          ['empty', CHECKS],
+        ]
+      )).to.deep.equal([
+        parse('main1 (doubleMaxFour, 1)'),
+        parse('main4 (doubleMaxFour, number 4)'),
+        parse('main5 (doubleMaxFour, number 5)'),
+      ]);
     });
   });
 });

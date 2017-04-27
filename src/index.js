@@ -32,6 +32,7 @@ export const list = {
 export const VAR = '$';
 export const EVAL = '|-';
 export const END = 'end';
+export const CHECKS = 'checks';
 
 const LEFT = 0;
 const RIGHT = 1;
@@ -97,6 +98,32 @@ export function sameBindings(scope: Array<Juxt>): boolean {
     }
   }
   return true;
+}
+
+export function hasVars(term: Term): boolean {
+  if (typeof term === 'string') return false;
+  if (term instanceof Array) {
+    if (term[RIGHT] === VAR) return true;
+    return hasVars(term[LEFT]) || hasVars(term[RIGHT]);
+  }
+  throw new Error();
+}
+
+export function checkOne(right: Term, rules: Array<Juxt>, unreds: Array<Juxt>): boolean {
+  const holds = sub(unreds, right);
+  if (holds === CHECKS) return true;
+  const subterm = sub(rules, right);
+  if (isEqual(right, subterm)) return false;
+  return checkOne(subterm, rules, unreds);
+}
+
+export function check(rules: Array<Juxt>, unreds: Array<Juxt>): ?Array<Juxt> {
+  const wrong: Array<Juxt> = [];
+  for (const [left, right] of rules) {
+    if (!hasVars(right)) if (!checkOne(right, rules, unreds)) wrong.push([left, right]);
+  }
+  if (wrong.length) return wrong;
+  return null;
 }
 
 import make from "nearley-make";
