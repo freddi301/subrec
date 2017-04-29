@@ -436,6 +436,22 @@ describe('pattern checking', () => {
         main3 (doubleMaxFour, number 3),
         main4 (doubleMaxFour, number 4),
         main5 (doubleMaxFour, number 5),
+        lambdasub ($ var) ($ param) (($ left) ($ right)) (
+          (lambdasub (var $) (param $) (left $))
+          (lambdasub (var $) (param $) (right $))
+        ),
+        lambdasub ($ var) ($ param) ($ var) (
+          (param $)
+        ),
+        lambdasub ($ var) ($ param) ($ body) (
+          (body $)
+        ),
+        ($ var) => ($ body) ($ param) (
+          lambdasub (var $) (param $) (body $)
+        ),
+        lambdaAdd (x =>, y =>, x + y),
+        mainl1 (lambdaAdd (number 2) (number 3)),
+        mainl2 (lambdaAdd (number 2) (number 2)),
         end
       )`));
       //expect(sub(rules, 'main1')).to.deep.equal(['number', '2']);
@@ -451,12 +467,14 @@ describe('pattern checking', () => {
           [['number', '10'], CHECKS],
           [['boolean', 'true'], CHECKS],
           [['boolean', 'false'], CHECKS],
+          [parse(`($ var) => ($ body)`), CHECKS],
           ['empty', CHECKS],
         ]
       )).to.deep.equal([
         parse('main1 (doubleMaxFour, 1)'),
         parse('main4 (doubleMaxFour, number 4)'),
         parse('main5 (doubleMaxFour, number 5)'),
+        parse('mainl1 (lambdaAdd (number 2) (number 3))')
       ]);
     });
   });

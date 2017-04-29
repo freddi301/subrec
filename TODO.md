@@ -33,6 +33,7 @@ implement other language's cool features:
 
 
   - static typing
+  - sum, product, union, intersection, invariance and recursive types
   - currying
   - lambdas
   - guards
