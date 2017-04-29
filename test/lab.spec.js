@@ -379,7 +379,7 @@ describe('pattern checking', () => {
       ], [
         [['Boolean', 'true'], CHECKS],
         [['Boolean', 'false'], CHECKS],
-      ])).to.deep.equal([ ['False', ['Boolean', 'fal']] ]);
+      ])).to.deep.equal([ [ { rule: ['False', ['Boolean', 'fal']], subterm: ['Boolean', 'fal'] } ] ]);
       expect(check([
         ['True', ['Boolean', 'true']],
         ['False', ['Boolean', 'false']],
@@ -388,7 +388,6 @@ describe('pattern checking', () => {
       ], [
         [['Boolean', 'true'], CHECKS],
         [['Boolean', 'false'], CHECKS],
-        [['Boolean', [[VAR, '_'], VAR]], CHECKS],
       ])).to.deep.equal(null);
       expect(check([
         ['True', ['Boolean', 'true']],
@@ -398,8 +397,10 @@ describe('pattern checking', () => {
       ], [
         [['Boolean', 'true'], CHECKS],
         [['Boolean', 'false'], CHECKS],
-        [['Boolean', [[VAR, '_'], VAR]], CHECKS],
-      ])).to.deep.equal([ ['main', ['id', 'integer']] ]);
+      ])).to.deep.equal([ [
+        { rule: ['main', ['id', 'integer']], subterm: ['id', 'integer'] },
+        { rule: [['id', [VAR, 'x']], ['Boolean', ['x', VAR]]], subterm: ['Boolean', 'integer'] },
+      ] ]);
       expect(check([
         ['True', ['Boolean', 'true']],
         ['False', ['Boolean', 'false']],
@@ -408,8 +409,10 @@ describe('pattern checking', () => {
       ], [
         [['Boolean', 'true'], CHECKS],
         [['Boolean', 'false'], CHECKS],
-        [['Boolean', [[VAR, '_'], VAR]], CHECKS],
-      ])).to.deep.equal([ ['main', ['id', ['true', 'false']]] ]);
+      ])).to.deep.equal([ [
+        { rule: ['main', ['id', ['true', 'false']]], subterm: ['id', ['true', 'false']] },
+        { rule: [['id', [VAR, 'x']], ['Boolean', ['x', VAR]]], subterm: ['Boolean', ['true', 'false']]}
+      ] ]);
       const rules =  list.toJuxtArray(parse(`(
         :: ($ type) ($ type, $ x) (type $, x $),
         (number 1) + (number 1) (number 2),
@@ -456,6 +459,7 @@ describe('pattern checking', () => {
       )`));
       //expect(sub(rules, 'main1')).to.deep.equal(['number', '2']);
       expect(sub(rules, 'main2')).to.deep.equal(['number', '4']);
+      expect(sub(rules, 'mainl2')).to.deep.equal(['number', '4']);
       expect(sub(rules, 'main3')).to.deep.equal(['number', '6']);
       expect(sub(rules, 'main4')).to.deep.equal([['::', 'number'], 'empty']);
       expect(sub(rules, 'main5')).to.deep.equal([['::', 'number'], 'empty']);
@@ -470,12 +474,26 @@ describe('pattern checking', () => {
           [parse(`($ var) => ($ body)`), CHECKS],
           ['empty', CHECKS],
         ]
-      )).to.deep.equal([
-        parse('main1 (doubleMaxFour, 1)'),
-        parse('main4 (doubleMaxFour, number 4)'),
-        parse('main5 (doubleMaxFour, number 5)'),
-        parse('mainl1 (lambdaAdd (number 2) (number 3))')
-      ]);
+      )).to.deep.equal([ [
+        {rule: parse('main1 (doubleMaxFour, 1)'), subterm: parse('(doubleMaxFour, 1)')},
+        {rule: parse(`doubleMaxFour ($ num) (:: number,
+          doubleMaxFourG ((num $) < (number 4)) (num $)
+        )`), subterm: parse(':: number, doubleMaxFourG (1 < (number 4)) 1')},
+      ], [
+        {rule: parse('main4 (doubleMaxFour, number 4)'), subterm: parse('doubleMaxFour, number 4')},
+        {rule: parse(`doubleMaxFour ($ num) (:: number,
+          doubleMaxFourG ((num $) < (number 4)) (num $)
+        )`), subterm: parse(':: number empty')}
+      ], [
+        {rule: parse('main5 (doubleMaxFour, number 5)'), subterm: parse('doubleMaxFour, number 5')},
+        {rule: parse(`doubleMaxFour ($ num) (:: number,
+          doubleMaxFourG ((num $) < (number 4)) (num $)
+        )`), subterm: parse(':: number empty')}
+      ], [
+        {rule: parse('mainl1 (lambdaAdd (number 2) (number 3))'), subterm: parse('lambdaAdd (number 2) (number 3)')},
+      ], [ // FIXME
+        {rule: parse('mainl2 (lambdaAdd (number 2) (number 2))'), subterm: parse('lambdaAdd (number 2) (number 2)')},
+      ] ]);
     });
   });
 });
