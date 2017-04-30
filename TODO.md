@@ -1,12 +1,13 @@
 # TODO
 
 refactor:
-  - remove evaluate and inner evaluate - rewrite tests
+  - ? remove evaluate and inner evaluate - rewrite tests
   - rewrite commented tests
   - refactor tests to use exported consts $
   - pattern-check also with vars
   - better report for pattern-checking
   - change structure
+  - test design patterns
 
 # WISHLIST
 
@@ -28,7 +29,7 @@ implement other language's cool features:
   - Swift, Scala, Lua, Rebol, FORTH, Fortran, Rexx, Perl, Pascal, Algol, Bash, Basic, awk, PHP, Hack, Dart, Kotlin, Tom,
   Visual Basic, VimScript, ASP, Vala, ColdFusion, ActionScript, AppleScript, Prolog, Delphi, Nim, Nemerle, Refal,
   PureScript, Eiffel, Ada, Logos, Gosu, Apex, Idl, ABL, Lasso, APL, J, ML, Octave, Joy, Cobol, Deplhi, Red, K, LFE,
-  Ceylon, ParaSail, Idris, Q, Pure, Genie, Agda, Cobra, Seed7, Boo, Squirrel, Falcon, Factor, Io, D, JoinJava,
+  Ceylon, ParaSail, Idris, Q, Pure, Genie, Agda, Cobra, Seed7, Boo, Squirrel, Falcon, Factor, Io, D, JoinJava, Jeeves,
   Wren, agora, Lux, gravity, cpython, ponyc, nu, amber, lily, Groovy, FP, FL, Dylan, Algol, Icon, Idol, Unicon,
 
 

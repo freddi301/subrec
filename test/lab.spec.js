@@ -223,19 +223,12 @@ describe('lambdas', () => {
   it('works', () => {
     expect(evaluate(parse(`
       ${EVAL}, (
-        lambdasub ($ var) ($ param) (($ left) ($ right)) (
-          (lambdasub (var $) (param $) (left $))
-          (lambdasub (var $) (param $) (right $))
+        ($ var) => (($ left) ($ right)) ($ param) (
+          ((var $) => (left $) (param $))
+          ((var $) => (right $) (param $))
         ),
-        lambdasub ($ var) ($ param) ($ var) (
-          (param $)
-        ),
-        lambdasub ($ var) ($ param) ($ body) (
-          (body $)
-        ),
-        ($ var) => ($ body) ($ param) (
-          lambdasub (var $) (param $) (body $)
-        ),
+        ($ var) => ($ var) ($ param) (param $),
+        ($ var) => ($ body) ($ param) (body $),
         1 + 1 2,
         2 + 1 3,
         1 + 2 3,

@@ -141,6 +141,7 @@ const grammar = fs.readFileSync('src/syntax.ne', 'utf-8');
 export function parse(text: string): Term {
   const parser = make(grammar);
   parser.feed(text);
+  if (parser.results.length === 0) throw new Error('unecpected end of input');
   if (parser.results.length > 1) throw new Error('ambigous syntax');
   /*if (parser.results.length > 1) {
     console.log(text);
