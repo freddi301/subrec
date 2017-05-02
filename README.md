@@ -1,6 +1,27 @@
+![help](https://img.shields.io/badge/ideas-welcome-brightgreen.svg)
+![help](https://img.shields.io/badge/contributions-welcome-brightgreen.svg)
+
+# Subrec
+
+Symbol processing language
+
+For now there will be a lot of POCs to explore language flexibility.
+
+The goal is to emulate all basic/useful/cool features from other languages (libraries, frameworks and platform features are secondary).
+
+# Contributions
+
+Feel free to add cool/niche language to the list and some features you couldn't do without
+
+If you have a clever idea of how to improve the core language
+
+PR or Open Issue
+
 # TODO
 
-refactor:
+- find a better name    ![help](https://img.shields.io/badge/help-needed-brightgreen.svg)
+
+- refactor:
   - ? remove evaluate and inner evaluate - rewrite tests
   - rewrite commented tests
   - refactor tests to use exported consts $
@@ -8,8 +29,13 @@ refactor:
   - better report for pattern-checking
   - change structure
   - test design patterns
+  - bootstrap language
 
 # WISHLIST
+
+syntax:
+  - fit in somehow python like indentation rules
+  - choose a delimiter + escape-character for space-containing/multiline symbols (indentation preserving)
 
 transpiler/interpreter:
   - infere if more efficient copy term or reference it (so garbage collected)
@@ -45,6 +71,7 @@ implement other language's cool features:
   - parametric polymorphism
   - ad hoc polymorphism
   - multimethods
+  - inheritance (for classes, interfaces...)
   - runtime polymorphism
   - row polymorphism
   - symple dsl
@@ -65,7 +92,7 @@ implement other language's cool features:
   - seamless parallel programming (with some monoid structures)
   - coroutines (python like)
   - programming in the large:
-    - documentation
+    - documentation (could be lisp like)
     - semantic versioning automatically enforced (elm like)
     - distribution
     - package system
