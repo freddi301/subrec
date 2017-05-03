@@ -21,10 +21,10 @@ const List = {
     [parse ($ head, $ tail) (Cons, head $, [parse (tail $)),
     [ ($ fields) ([parse (fields $)),
   `,
-  unred: [
+  unred: [ // data List = Nil | Cons _ List
     ['Nil', CHECKS],
-    [['Cons', [[VAR, 'head'], [VAR, 'tail']]], parse('isCons (tail $)')],
     [parse('isCons Nil'), CHECKS],
+    [['Cons', [[VAR, 'head'], [VAR, 'tail']]], parse('isCons (tail $)')],
     [parse('isCons (Cons, ($ head) ($ tail))'), parse('isCons (tail $)')]
   ]
 };
