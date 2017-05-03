@@ -9,7 +9,7 @@ describe('poc-1-ground-type-check', () => {
       const rules = list.toJuxtArray(parse(`
         bool1 (type Boolean true),
         bool2 (type Boolean false),
-        bool3 (type Boolean batman),
+        bool3 (type Boolean, batman vs superman),
         bool4 (type Boolean superman),
         end
       `));
@@ -21,11 +21,11 @@ describe('poc-1-ground-type-check', () => {
       const errors = check(rules, unreds);
       if (!errors) throw new Error();
       expect(errors).to.have.property('length', 2);
-      expect(errors[0][0].rule).to.deep.equal(parse('bool3 (type Boolean batman)'));
+      expect(errors[0][0].rule).to.deep.equal(parse('bool3 (type Boolean (batman vs superman))'));
       expect(errors[1][0].rule).to.deep.equal(parse('bool4 (type Boolean superman)'));
       // data Boolean (true | false | batman);
       const unreds2 = list.toJuxtArray(parse(`
-        data Boolean (true | batman | false),
+        data Boolean (true | (batman vs superman) | false),
         check (($ tail) | ($ value)) ($ value) ${CHECKS},
         check (($ tail) | ($ alt)) ($ value) (check (tail $) (value $)),
         check ($ value) ($ value) ${CHECKS},
@@ -39,8 +39,5 @@ describe('poc-1-ground-type-check', () => {
       expect(errors2).to.have.property('length', 1);
       expect(errors2[0][0].rule).to.deep.equal(parse('bool4 (type Boolean superman)'));
     });
-  });
-  describe('Boolean BTree - recursive type', () => {
-    // TODO copy->refactor from cons.spec line ~26
   });
 });
