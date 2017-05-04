@@ -50,7 +50,9 @@ export function match(pattern: Term, term: Term): ?Array<Juxt> {
   return null;
 }
 
-export function matchIn(rules: Array<Juxt>, term: Term): ?{ scope: Array<Juxt>, right: Term, left: Term, rule: Juxt } {
+export type Matched = { scope: Array<Juxt>, right: Term, left: Term, rule: Juxt };
+
+export function matchIn(rules: Array<Juxt>, term: Term): ?Matched {
   if (rules.length === 0) return null;
   for (const rule of rules) {
     const scope = match(rule[LEFT], term);
