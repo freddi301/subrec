@@ -17,28 +17,26 @@ const Lambda = {
 
 const List = {
   rules: `
-    [parse ] Nil,
-    [parse ($ head, $ tail) (Cons, head $, [parse (tail $)),
-    [ ($ fields) ([parse (fields $)),
+    [parse ] (List Nil),
+    [parse ($ head, $ tail) (List, Cons, head $, [parse, tail $),
+    [ ($ fields) ([parse, fields $),
   `,
   unred: [ // data List = Nil | Cons _ List
-    ['Nil', CHECKS],
-    [parse('isCons Nil'), CHECKS],
-    [['Cons', [[VAR, 'head'], [VAR, 'tail']]], parse('isCons (tail $)')],
-    [parse('isCons (Cons, ($ head) ($ tail))'), parse('isCons (tail $)')]
+    [parse('List Nil'), CHECKS],
+    [parse('List, Cons, ($ head) (List, $ tail)'), parse('List, tail $')]
   ]
 };
 
 const Reduce = {
   rules: `
-    Nil . reduce ($ reducer) ($ state) (state $),
-    (Cons, ($ head, $ tail)) . reduce ($ reducer) ($ state) (
+    List Nil . reduce ($ reducer) ($ state) (state $),
+    List (Cons, ($ head, $ tail)) . reduce ($ reducer) ($ state) (
       (tail $) . reduce (reducer $) ((reducer $) (state $) (head $))
     ),
   `,
 }
 
-describe('list example', () => {
+describe('list reduce', () => {
   it('works', () => {
     const rules = list.toJuxtArray(parse(`
       ${List.rules}
@@ -46,19 +44,19 @@ describe('list example', () => {
       list1 ([, a ,]),
       list2 ([, a , b ,]),
       list3 ([, a , b , c ,]),
-      notlist (Cons, a b),
-      islist (Cons, a Nil),
+      notlist (List (Cons, a b)),
+      islist (List (Cons, a (List Nil))),
       end
     `));
-    expect(sub(rules, 'list0')).to.deep.equal('Nil');
-    expect(sub(rules, 'list1')).to.deep.equal(parse('Cons, a Nil'));
-    expect(sub(rules, 'list2')).to.deep.equal(parse('Cons, a, (Cons, b, Nil)'));
-    expect(sub(rules, 'list3')).to.deep.equal(parse('Cons, a, (Cons, b, (Cons, c, Nil))'));
+    expect(sub(rules, 'list0')).to.deep.equal(parse('List Nil'));
+    expect(sub(rules, 'list1')).to.deep.equal(parse('List (Cons, a (List Nil))'));
+    expect(sub(rules, 'list2')).to.deep.equal(parse('List (Cons, a, (List (Cons, b, List Nil)))'));
+    expect(sub(rules, 'list3')).to.deep.equal(parse('List (Cons, a, (List (Cons, b, (List (Cons, c, (List Nil))))))'));
     expect(check(rules, [
       ['a', CHECKS], ['b', CHECKS], ['c', CHECKS], ['☺', CHECKS],
       ...List.unred,
     ])).to.deep.equal([
-      [ {rule: parse('notlist (Cons, a b)'), subterm: parse('(Cons, a b)')} ]
+      [ {rule: parse('notlist (List (Cons, a b))'), subterm: parse('List (Cons, a b)')} ]
     ]);
   });
   describe('reduce', () => {
