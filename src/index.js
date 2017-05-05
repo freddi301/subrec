@@ -117,7 +117,7 @@ export function checkOne(left: Term, right: Term, rules: Array<Juxt>, unreds: Ar
   const holds = sub(unreds, right);
   if (holds === CHECKS) return null;
   const subterm = sub(rules, right);
-  if (isEqual(right, subterm)) return trace;
+  if (isEqual(right, subterm)) { if (trace.length === 0) return [{ rule: [left, right], subterm }]; return trace };
   return checkOne(left, subterm, rules, unreds, trace.concat({ rule: [left, right], subterm }));
 }
 
