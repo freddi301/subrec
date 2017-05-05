@@ -155,3 +155,5 @@ export function parse(text: string): Term {
   }*/
   return parser.results[0].toJSON();
 }
+
+export const s = (template: string[], ...expressions: string[]) => parse(template.reduce((accumulator, part, i) => accumulator + expressions[i - 1] + part));
