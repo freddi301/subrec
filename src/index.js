@@ -116,13 +116,9 @@ export type Trace = {rule: Juxt, subterm: Term};
 export function checkOne(left: Term, right: Term, rules: Array<Juxt>, unreds: Array<Juxt>, trace: Array<Trace> = []): ?Array<Trace> {
   const holds = sub(unreds, right);
   if (holds === CHECKS) return null;
-  const match = matchIn(rules, right);
-  if (!match) {
-    if (!trace.length) return trace.concat({ rule: [left, right], subterm: right });
-    return trace;
-  } else if (!trace.length) { trace = [{ rule: [left, right], subterm: right }] }
   const subterm = sub(rules, right);
-  return checkOne(left, subterm, rules, unreds, trace.concat({ rule: match.rule, subterm }));
+  if (isEqual(right, subterm)) return trace;
+  return checkOne(left, subterm, rules, unreds, trace.concat({ rule: [left, right], subterm }));
 }
 
 export function check(rules: Array<Juxt>, unreds: Array<Juxt>): ?Array<Array<Trace>> {
@@ -157,3 +153,4 @@ export function parse(text: string): Term {
 }
 
 export const s = (template: string[], ...expressions: string[]) => parse(template.reduce((accumulator, part, i) => accumulator + expressions[i - 1] + part));
+export const r = (template: string[], ...expressions: string[]) => list.toJuxtArray(s(template, ...expressions));

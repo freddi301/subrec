@@ -3,81 +3,7 @@
 import { expect } from 'chai';
 import { parse, s, list, match, matchIn, sub, evaluate, check, END, VAR, EVAL, CHECKS } from '../src';
 
-describe('helper functions', () => {
-  describe('list', () => {
-    describe('#fromArray', () => {
-      it('works', () => {
-        expect(list.fromArray([])).to.deep.equal(END);
-        expect(list.fromArray(['a'])).to.deep.equal(['a', END]);
-        expect(list.fromArray(['a', 'b'])).to.deep.equal(['a', ['b', END]]);
-      });
-    });
-  });
-});
-
-describe('match', () => {
-  it('works', () => {
-    expect(match(parse(`a`), parse(`b`))).to.deep.equal(null);
-    expect(match(parse(`(a b)`), parse(`(b a)`))).to.deep.equal(null);
-    expect(match(parse(`a`), parse(`a`))).to.deep.equal([]);
-    expect(match(parse(`(a b)`), parse(`(a b)`))).to.deep.equal([]);
-    expect(match(parse(`(${VAR} a)`), parse(`hello`)))
-      .to.deep.equal([ [ [ 'a', VAR ], 'hello' ] ]);
-    expect(match(parse(`((${VAR} a) (${VAR} b))`), parse(`(hello ciao)`)))
-       .to.deep.equal([ [ [ 'a', VAR ], 'hello' ], [ [ 'b', VAR ], 'ciao' ] ]);
-  });
-});
-
-describe('matchIn', () => {
-  it('works', () => {
-    expect(matchIn(list.toJuxtArray(parse(`(
-      a x,
-      b y, ${END},
-    )`)), parse('a'))).property('right').to.deep.equal('x');
-    expect(matchIn(list.toJuxtArray(parse(`(
-      a x,
-      b y, ${END}
-    )`)), parse('b'))).property('right').to.deep.equal('y');
-    expect(matchIn(list.toJuxtArray(parse(`(
-      a x,
-      b y, ${END}
-    )`)), parse('c'))).to.deep.equal(null);
-    expect(matchIn(list.toJuxtArray(parse(`(
-      (${VAR} a) x,
-      b y, ${END}
-    )`)), parse('hello'))).to.deep.equal({
-      right: 'x',
-      left: parse(`(${VAR} a)`),
-      rule: parse(`(${VAR} a) x`),
-      scope: [ [ [ 'a', VAR ], 'hello' ] ],
-    });
-    expect(matchIn(list.toJuxtArray(parse(`(
-      a x,
-      b (${VAR} p) y, ${END}
-    )`)), parse('(b hello)'))).to.deep.equal({
-      left: parse(`b (${VAR} p)`), right: 'y', rule: parse(`b (${VAR} p) y`),
-      scope: [ [ [ 'p', VAR ], 'hello' ] ],
-    });
-    expect(matchIn(list.toJuxtArray(parse(`(
-      a x,
-      b (${VAR} p) y, ${END}
-    )`)), parse('b'))).to.deep.equal(null);
-    expect(matchIn(list.toJuxtArray(parse(`(
-      a x,
-      b (${VAR} p) y, ${END}
-    )`)), parse('c'))).to.deep.equal(null);
-    expect(matchIn(list.toJuxtArray(parse(`(
-      a x,
-      b (${VAR} p) (${VAR} q) w,
-      c u, ${END}
-    )`)), parse('(b hello ciao)'))).to.deep.equal({
-      left: s`b (${VAR} p) (${VAR} q)`, right: 'w', rule: s`b (${VAR} p) (${VAR} q) w`,
-      scope: [ [ [ 'p', VAR ], 'hello' ], [ [ 'q', VAR ], 'ciao' ] ]
-    });
-  });
-});
-
-describe('bool not', () => {
+describe('bool not - recursive inner evaluation', () => {
   it('works', () => {
     const rules = [
       [ ['not', 'true'], 'false' ],
@@ -92,7 +18,7 @@ describe('bool not', () => {
   });
 });
 
-describe('vars', () => {
+describe('vars - var capturing and substitution', () => {
   it('works', () => {
     expect(match([VAR, 'x'], 'milk')).to.deep.equal(([[ ['x', VAR], 'milk' ]]));
     expect(match(['pack', [VAR, 'item']], ['pack', 'milk'])).to.deep.equal(([ [ ['item', VAR], 'milk' ] ]));
@@ -244,29 +170,6 @@ describe('single assignment', () => {
         end
       ) (f 1 2)
     `))).to.deep.equal('10');
-  });
-});
-
-describe('dicts', () => {
-  it('works', () => {
-    expect(evaluate(parse(`${EVAL}, (
-      Dict access (}) ($ field) (
-        empty
-      ),
-      Dict access ((($ field) ($ value)) ($ tail)) ($ field) (
-        (value $)
-      ),
-      Dict access (($ pair) ($ tail)) ($ field) (
-        Dict access (tail $) (field $)
-      ),
-      (Dict ($ fields)) . ($ field) (
-        Dict access (fields $) (field $)
-      ),
-      ({ ($ fields)) (Dict (fields $)),
-      a ({, x 4, y 6 ,}),
-      end
-    ) (a . x, a . y, a . z, ({,a 7,}) . a, ({,a 7,}) . b)
-    `))).to.deep.equal(parse('4, 6, empty, 7, empty'));
   });
 });
 
