@@ -12,7 +12,8 @@
   "scripts": {
     "flow": "flow check .",
     "precommit": "flow check . && npm test",
-    "test": "mocha test/*.spec.js"
+    "test": "mocha test/*.spec.js",
+    "mochawesome": "mocha test/*.spec.js --reporter mochawesome; firefox mochawesome-report/mochawesome.html &"
   },
   "devDependencies": {
     "babel-cli": "^6.24.1",
@@ -29,6 +30,7 @@
     "flow-typed": "^2.0.0",
     "husky": "^0.13.3",
     "mocha": "^3.2.0",
+    "mochawesome": "^2.1.0",
     "nearley": "2.8.0",
     "nearley-make": "^1.0.0"
   },
