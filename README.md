@@ -50,11 +50,12 @@ implement other language's cool features:
   - Java, C#, SmallTalk, ObjectiveC
   - Erlang, Elixir
   - Haskell, OCaml, F#
+  - Purescript, ReasonML
   - Clojure, Lisp, Scheme, Racket
   - R, Julia, Matlab
   - Swift, Scala, Lua, Rebol, FORTH, Fortran, Rexx, Perl, Pascal, Algol, Bash, Basic, awk, PHP, Hack, Dart, Kotlin, Tom,
   Visual Basic, VimScript, ASP, Vala, ColdFusion, ActionScript, AppleScript, Prolog, Delphi, Nim, Nemerle, Refal,
-  PureScript, Eiffel, Ada, Logos, Gosu, Apex, Idl, ABL, Lasso, APL, J, ML, Octave, Joy, Cobol, Deplhi, Red, K, LFE,
+  Eiffel, Ada, Logos, Gosu, Apex, Idl, ABL, Lasso, APL, J, ML, Octave, Joy, Cobol, Deplhi, Red, K, LFE,
   Ceylon, ParaSail, Idris, Q, Pure, Genie, Agda, Cobra, Seed7, Boo, Squirrel, Falcon, Factor, Io, D, JoinJava, Jeeves,
   Wren, agora, Lux, gravity, cpython, ponyc, nu, amber, lily, Groovy, FP, FL, Dylan, Algol, Icon, Idol, Unicon,
 
